@@ -59,11 +59,17 @@ classes = ["áo thun", "váy", "áo khoác", "quần short", "quần jean"]
 # =======================
 def predict_image(img_path):
     try:
+        if model is None:
+            return {"label": "Model chưa load", "confidence": 0}
+
         img = image.load_img(img_path, target_size=(224, 224))
         img_array = image.img_to_array(img) / 255.0
         img_array = np.expand_dims(img_array, axis=0)
+        img_array = tf.convert_to_tensor(img_array, dtype=tf.float32)
 
-        pred = model(img_array)
+        infer = model.signatures["serving_default"]
+        pred = infer(img_array)
+
         pred = list(pred.values())[0].numpy()[0]
 
         idx = np.argmax(pred)
@@ -72,13 +78,12 @@ def predict_image(img_path):
             "label": classes[idx],
             "confidence": round(float(pred[idx]) * 100, 2)
         }
+
     except Exception as e:
         return {
             "label": f"Lỗi predict: {str(e)}",
             "confidence": 0
         }
-
-
 # =======================
 # 🧺 OPENROUTER - TƯ VẤN GIẶT
 # =======================
