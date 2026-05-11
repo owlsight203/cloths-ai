@@ -74,9 +74,7 @@ def get_wash_advice(label):
     try:
         prompt = f"""
 Bạn là chuyên gia giặt giũ.
-
 Quần áo: {label}
-
 Trả lời ngắn gọn 3-5 dòng.
 """
 
@@ -98,10 +96,14 @@ Trả lời ngắn gọn 3-5 dòng.
 
         data = response.json()
 
-        if response.status_code == 200 and "choices" in data:
-            return data["choices"][0]["message"]["content"]
+        # 🔥 check lỗi trước
+        if response.status_code != 200:
+            return f"API lỗi: {data}"
 
-        return f"API lỗi: {data}"
+        if "choices" not in data:
+            return f"API response không hợp lệ: {data}"
+
+        return data["choices"][0]["message"]["content"]
 
     except Exception as e:
         return f"Lỗi: {str(e)}"
