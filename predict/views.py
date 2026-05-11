@@ -1,3 +1,5 @@
+import requests
+import json
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
