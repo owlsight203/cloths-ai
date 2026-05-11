@@ -9,57 +9,38 @@ from .models import ImageUpload, Prediction, QuestionAnswer
 from .forms import SignUpForm, LoginForm
 from django.contrib.auth.models import User
 
+import os
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.preprocessing import image
-import requests
-import json
-import os
+from django.conf import settings
 
-
-# =======================
-# 🔐 CONFIG OPENROUTER
-# =======================
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-
-# =======================
-# 🤖 LOAD MODEL AI (1 lần)
-# =======================
-# Sử dụng path từ environment hoặc hardcoded path
-import os
-import tensorflow as tf
-
-# =======================
-# 🔐 OPENROUTER API KEY
-# =======================
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-
-# =======================
-# 🤖 LOAD MODEL AI (SAVEDMODEL - FIXED)
-# =======================
 
 MODEL_PATH = os.path.join(
     settings.BASE_DIR,
     "model/my_clothing_classifier_model"
 )
 
-try:
-    model = tf.saved_model.load(MODEL_PATH)
-    print("✅ Model loaded successfully")
-except Exception as e:
-    print(f"⚠️ Lỗi load model: {e}")
-    model = None
+model = None
+infer = None
 
-# =======================
-# 🏷️ CLASS LABELS
-# =======================
+try:
+    loaded = tf.saved_model.load(MODEL_PATH)
+    infer = loaded.signatures["serving_default"]
+    model = loaded
+    print("✅ Model loaded OK")
+except Exception as e:
+    print("❌ Model load error:", e)
+
 classes = ["áo thun", "váy", "áo khoác", "quần short", "quần jean"]
 # =======================
 # 🧠 AI NHẬN DIỆN ẢNH
 # =======================
+from tensorflow.keras.preprocessing import image
+
 def predict_image(img_path):
     try:
-        if model is None:
+        if infer is None:
             return {"label": "Model chưa load", "confidence": 0}
 
         img = image.load_img(img_path, target_size=(224, 224))
@@ -67,10 +48,10 @@ def predict_image(img_path):
         img_array = np.expand_dims(img_array, axis=0)
         img_array = tf.convert_to_tensor(img_array, dtype=tf.float32)
 
-        infer = model.signatures["serving_default"]
         pred = infer(img_array)
 
-        pred = list(pred.values())[0].numpy()[0]
+        output_key = list(pred.keys())[0]
+        pred = pred[output_key].numpy()[0]
 
         idx = np.argmax(pred)
 
