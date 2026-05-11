@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
+
 from .models import ImageUpload, Prediction, QuestionAnswer
 from .forms import SignUpForm, LoginForm
 from django.contrib.auth.models import User
@@ -12,26 +14,32 @@ import numpy as np
 from tensorflow.keras.preprocessing import image
 import requests
 import json
+import os
 
 
 # =======================
 # 🔐 CONFIG OPENROUTER
 # =======================
-OPENROUTER_API_KEY = "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"
-
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 # =======================
 # 🤖 LOAD MODEL AI (1 lần)
 # =======================
-MODEL_PATH = os.path.join(
-    settings.BASE_DIR,
-    'model',
-    'my_clothing_classifier_model'
+# Sử dụng path từ environment hoặc hardcoded path
+MODEL_PATH = os.getenv(
+    "MODEL_PATH",
+    r"D:\DATASET\modelAI\my_clothing_classifier_model-20260415T052259Z-3-001\my_clothing_classifier_model"
 )
-model = tf.keras.layers.TFSMLayer(
-    MODEL_PATH,
-    call_endpoint='serving_default'
-)
+
+try:
+    model = tf.keras.layers.TFSMLayer(
+        MODEL_PATH,
+        call_endpoint='serving_default'
+    )
+except Exception as e:
+    print(f"⚠️ Lỗi khi load model: {e}")
+    print(f"⚠️ Đường dẫn: {MODEL_PATH}")
+    model = None
 
 classes = ["áo thun", "váy", "áo khoác", "quần short", "quần jean"]
 

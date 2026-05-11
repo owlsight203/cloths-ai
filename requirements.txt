@@ -1,0 +1,8 @@
+Django==5.2.13
+tensorflow==2.15.0
+Pillow==10.3.0
+numpy==2.2.6
+h5py==3.14.0
+keras==3.12.1
+requests==3.4.7
+python-dotenv==1.0.0
