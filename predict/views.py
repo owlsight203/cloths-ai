@@ -38,9 +38,9 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 # 🤖 LOAD MODEL AI (SAVEDMODEL - FIXED)
 # =======================
 
-MODEL_PATH = os.getenv(
-    "MODEL_PATH",
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "model/my_clothing_classifier_model")
+MODEL_PATH = os.path.join(
+    settings.BASE_DIR,
+    "model/my_clothing_classifier_model"
 )
 
 try:
