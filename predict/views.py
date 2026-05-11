@@ -75,11 +75,9 @@ def get_wash_advice(label):
         prompt = f"""
 Bạn là chuyên gia giặt giũ.
 
-Hãy đưa ra lời khuyên giặt cho loại quần áo: {label}
+Quần áo: {label}
 
-- Ngắn gọn
-- 3-5 dòng
-- Tiếng Việt
+Trả lời ngắn gọn 3-5 dòng.
 """
 
         response = requests.post(
@@ -98,7 +96,12 @@ Hãy đưa ra lời khuyên giặt cho loại quần áo: {label}
             }
         )
 
-        return response.json()['choices'][0]['message']['content']
+        data = response.json()
+
+        if response.status_code == 200 and "choices" in data:
+            return data["choices"][0]["message"]["content"]
+
+        return f"API lỗi: {data}"
 
     except Exception as e:
         return f"Lỗi: {str(e)}"
@@ -108,24 +111,19 @@ Hãy đưa ra lời khuyên giặt cho loại quần áo: {label}
 def answer_question(question, clothing_label):
     try:
         prompt = f"""
-        Bạn là chuyên gia về thời trang và quần áo.
-        
-        Quần áo được phát hiện: {clothing_label}
-        Câu hỏi của người dùng: {question}
-        
-        Hãy trả lời câu hỏi một cách:
-        - Ngắn gọn (2-4 dòng)
-        - Rõ ràng
-        - Dễ hiểu
-        - Tiếng Việt
-        - Liên quan đến loại quần áo được phát hiện
-        """
+Quần áo: {clothing_label}
+Câu hỏi: {question}
+
+Trả lời ngắn gọn 2-4 dòng.
+"""
 
         response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
+            "https://openrouter.ai/api/v1/chat/completions",
             headers={
                 "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://cloths-ai.onrender.com",
+                "X-Title": "cloths-ai"
             },
             json={
                 "model": "openai/gpt-4o-mini",
@@ -135,15 +133,15 @@ def answer_question(question, clothing_label):
             }
         )
 
-        if response.status_code == 200:
-            data = response.json()
-            return data['choices'][0]['message']['content']
-        else:
-            return f"Không thể trả lời câu hỏi lúc này"
+        data = response.json()
+
+        if response.status_code == 200 and "choices" in data:
+            return data["choices"][0]["message"]["content"]
+
+        return f"API lỗi: {data}"
 
     except Exception as e:
         return f"Lỗi: {str(e)}"
-
 
 # =======================
 # 🌐 VIEW CHÍNH
