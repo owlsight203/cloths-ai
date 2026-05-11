@@ -26,24 +26,34 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 # 🤖 LOAD MODEL AI (1 lần)
 # =======================
 # Sử dụng path từ environment hoặc hardcoded path
+import os
+import tensorflow as tf
+
+# =======================
+# 🔐 OPENROUTER API KEY
+# =======================
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+# =======================
+# 🤖 LOAD MODEL AI (SAVEDMODEL - FIXED)
+# =======================
+
 MODEL_PATH = os.getenv(
     "MODEL_PATH",
-    r"D:\DATASET\modelAI\my_clothing_classifier_model-20260415T052259Z-3-001\my_clothing_classifier_model"
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "model/my_clothing_classifier_model")
 )
 
 try:
-    model = tf.keras.layers.TFSMLayer(
-        MODEL_PATH,
-        call_endpoint='serving_default'
-    )
+    model = tf.saved_model.load(MODEL_PATH)
+    print("✅ Model loaded successfully")
 except Exception as e:
-    print(f"⚠️ Lỗi khi load model: {e}")
-    print(f"⚠️ Đường dẫn: {MODEL_PATH}")
+    print(f"⚠️ Lỗi load model: {e}")
     model = None
 
+# =======================
+# 🏷️ CLASS LABELS
+# =======================
 classes = ["áo thun", "váy", "áo khoác", "quần short", "quần jean"]
-
-
 # =======================
 # 🧠 AI NHẬN DIỆN ẢNH
 # =======================
