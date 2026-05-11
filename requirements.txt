@@ -1,7 +1,7 @@
 Django==5.2.13
 tensorflow==2.15.0
+numpy==1.26.4
 Pillow==10.3.0
-numpy==2.2.6
-h5py==3.14.0
+h5py==3.9.0
 requests==2.32.3
 python-dotenv==1.0.0
