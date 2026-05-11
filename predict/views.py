@@ -73,23 +73,22 @@ def predict_image(img_path):
 def get_wash_advice(label):
     try:
         prompt = f"""
-        Bạn là chuyên gia giặt giũ.
+Bạn là chuyên gia giặt giũ.
 
-        Hãy đưa ra lời khuyên giặt cho loại quần áo: {label}
+Hãy đưa ra lời khuyên giặt cho loại quần áo: {label}
 
-        Yêu cầu:
-        - Ngắn gọn
-        - Dễ hiểu
-        - 3-5 dòng
-        - Tiếng Việt
-        - Không lan man
-        """
+- Ngắn gọn
+- 3-5 dòng
+- Tiếng Việt
+"""
 
         response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
+            "https://openrouter.ai/api/v1/chat/completions",
             headers={
                 "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://cloths-ai.onrender.com",
+                "X-Title": "cloths-ai"
             },
             json={
                 "model": "openai/gpt-4o-mini",
@@ -99,16 +98,10 @@ def get_wash_advice(label):
             }
         )
 
-        if response.status_code == 200:
-            data = response.json()
-            return data['choices'][0]['message']['content']
-        else:
-            return f"API lỗi: {response.status_code} - {response.text}"
+        return response.json()['choices'][0]['message']['content']
 
     except Exception as e:
         return f"Lỗi: {str(e)}"
-
-
 # =======================
 # 💬 OPENROUTER - TRẢ LỜI CÂU HỎI
 # =======================
